@@ -16,6 +16,7 @@ import java.util.Iterator;
 
 public class MainActivity extends ActionBarActivity {
     private int scoreThisTurn;
+    private int earlierScoreThisRound;
     private int totalScore;
     private boolean turnEnded;
     private int turnRound;
@@ -78,18 +79,54 @@ public class MainActivity extends ActionBarActivity {
         turnEnded = true;
     }
 
-    public void scoreButton(View view) {
-        ArrayList<Die> onHoldDice = new ArrayList<Die>();
-        for(Die die:dice) {
-            if(die.onHold && !die.locked) {
-                onHoldDice.add(die);
+    public ArrayList<Die> getScoringDice(ArrayList<Die> dice) {
+        ArrayList<Integer> dieValues = ScoreCalculator.getDiceValues(dice);
+        ArrayList<Integer> threeOfAKind = ScoreCalculator.calculateThreeOfAKind(dieValues);
+        for(Die die : this.dice) {
+            die.setNoPoints();
+        }
+        for(Integer val: threeOfAKind) {
+            int count = 0;
+            for(Die die: dice) {
+                if(val == die.getValue() && count < 3) {
+                    count++;
+                    die.setGivePoints();
+                }
+            }
+        }
+        if(ScoreCalculator.calculateStraight(dieValues)) {
+            for(Die die: dice) {
+                die.setGivePoints();
+            }
+        }
+        for(Die die: dice) {
+            if((die.getValue()==1 || die.getValue() == 5)) {
+                die.setGivePoints();
+            }
+        }
+        ArrayList<Die> scoringDice = new ArrayList<Die>();
+        for(Die die: this.dice) {
+            if(die.givePoints) {
+                scoringDice.add(die);
                 die.setLocked();
             }
         }
-        Integer score = ScoreCalculator.calculateScore(onHoldDice);
-        if((turnRound == 1 && score >= 300) || (turnRound > 1 && score > 0)) {
+        return scoringDice;
+    }
+
+    public void scoreButton(View view) {
+        ArrayList<Die> onHoldOrLockedDice = new ArrayList<Die>();
+        ArrayList<Die> onHoldDice = new ArrayList<Die>();
+        for(Die die:dice) {
+            if(die.onHold || die.locked) {
+                onHoldOrLockedDice.add(die);
+            }
+        }
+        ArrayList<Die> scoringDice = getScoringDice(onHoldOrLockedDice);
+        Integer score = earlierScoreThisRound + ScoreCalculator.calculateScore(scoringDice);
+        if((turnRound == 1 && score >= 300) || (turnRound > 1 && score > scoreThisTurn)) {
             turnEnded = false;
-            scoreThisTurn = scoreThisTurn + score;
+            scoreThisTurn = score;
             String turnText = "Turn score: " + scoreThisTurn;
             TextView turnScore = (TextView) findViewById(R.id.turn_score);
             turnScore.setText((CharSequence) turnText);
@@ -111,6 +148,7 @@ public class MainActivity extends ActionBarActivity {
         scoreThisTurn = 0;
         turnRound = 1;
         turnEnded = false;
+        earlierScoreThisRound = 0;
         for(Die die:dice) {
             die.setUnlocked();
             die.onHold = false;
@@ -136,7 +174,9 @@ public class MainActivity extends ActionBarActivity {
             for(Die die:dice) {
                 die.setUnlocked();
                 die.onHold = false;
+                turnEnded = false;
             }
+            earlierScoreThisRound = earlierScoreThisRound + ScoreCalculator.calculateScore(this.dice);
         }
     }
 
@@ -149,6 +189,7 @@ public class MainActivity extends ActionBarActivity {
         saveButton.setEnabled(true);
         Button scoreButton = (Button) findViewById(R.id.score_button);
         scoreButton.setEnabled(true);
+        turnEnded = true;
         checkDice();
         for(Die die:dice) {
             if(!die.locked) {
@@ -156,7 +197,6 @@ public class MainActivity extends ActionBarActivity {
                 rolledDice.add(die);
             }
         }
-        turnEnded = true;
 
         if(turnRound == 1 && ScoreCalculator.calculateScore(dice) < 300) {
             saveButton.setEnabled(false);

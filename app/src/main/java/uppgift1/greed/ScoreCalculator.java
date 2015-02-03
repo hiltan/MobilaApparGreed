@@ -42,6 +42,7 @@ public class ScoreCalculator {
         return score;
     }
 
+
     public static ArrayList<Integer> getDiceValues(ArrayList<Die> dice) {
         ArrayList<Integer> values = new ArrayList<Integer>();
         for(Die die:dice) {

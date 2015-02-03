@@ -13,9 +13,18 @@ public class Die extends ImageButton {
     int value;
     boolean locked = false;
     boolean onHold = false;
+    boolean givePoints = false;
 
     public boolean isLocked() {
         return locked;
+    }
+
+    public void setGivePoints () {
+        this.givePoints = true;
+    }
+
+    public void setNoPoints() {
+        this.givePoints = false;
     }
 
     public void setLocked() {
