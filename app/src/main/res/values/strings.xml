@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Greed</string>
+    <string name="score">Score: 0</string>
+    <string name="turn_score">Turn score: 0</string>
+    <string name="turn_number">Turn: 1</string>
+    <string name="button_save">Save</string>
+    <string name="button_score">Score</string>
+    <string name="button_throw">Throw</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
