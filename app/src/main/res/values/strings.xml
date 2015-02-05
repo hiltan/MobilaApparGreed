@@ -9,5 +9,9 @@
     <string name="button_score">Score</string>
     <string name="button_throw">Throw</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_game_finished">gameFinished</string>
+    <string name="congratulations_text">Congratulations you succeeded!</string>
+    <string name="try_again">Try again</string>
+    <string name="win_text">You got 10000 points after 23 rounds</string>
 
 </resources>

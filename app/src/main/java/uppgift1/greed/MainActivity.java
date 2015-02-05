@@ -1,5 +1,6 @@
 package uppgift1.greed;
 
+import android.content.Intent;
 import android.support.annotation.DrawableRes;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -71,6 +72,12 @@ public class MainActivity extends ActionBarActivity {
 
     public void saveDice(View view) {
         totalScore = totalScore + scoreThisTurn;
+        if(totalScore >= 500) {
+            Intent intent = new Intent(this, gameFinished.class);
+            intent.putExtra("score", totalScore);
+            intent.putExtra("turn", turn);
+            startActivity(intent);
+        }
         String turnText = "Score: " + totalScore;
         TextView turnScore = (TextView) findViewById(R.id.total_score);
         turnScore.setText((CharSequence) turnText);
