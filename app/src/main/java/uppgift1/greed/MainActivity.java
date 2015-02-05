@@ -72,7 +72,7 @@ public class MainActivity extends ActionBarActivity {
 
     public void saveDice(View view) {
         totalScore = totalScore + scoreThisTurn;
-        if(totalScore >= 500) {
+        if(totalScore >= 10000) {
             Intent intent = new Intent(this, gameFinished.class);
             intent.putExtra("score", totalScore);
             intent.putExtra("turn", turn);
