@@ -1,9 +1,11 @@
 package uppgift1.greed;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.support.annotation.DrawableRes;
-import android.support.v7.app.ActionBarActivity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,48 +13,32 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends Activity {
+    static final String SCORE_THIS_TURN = "0";
+    static final String TOTAL_SCORE = "0";
+    static final String TURN_ROUND = "0";
+    static final String TURN = "0";
+
     private int scoreThisTurn;
-    private int earlierScoreThisRound;
     private int totalScore;
     private boolean turnEnded;
     private int turnRound;
     private int turn;
 
     private ArrayList<Die> dice = new ArrayList<Die>();
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Die die1 = (Die) findViewById(R.id.first_dice);
-        Die die2 = (Die) findViewById(R.id.second_dice);
-        Die die3 = (Die) findViewById(R.id.third_dice);
-        Die die4 = (Die) findViewById(R.id.fourth_dice);
-        Die die5 = (Die) findViewById(R.id.fifth_dice);
-        Die die6 = (Die) findViewById(R.id.sixth_dice);
-
-        dice.add(die1);
-        dice.add( die2);
-        dice.add(die3);
-        dice.add(die4);
-        dice.add(die5);
-        dice.add(die6);
-
-        turnRound = 1;
-        turn = 1;
-
-    }
-
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save the user's current game state
+//         savedInstanceState.putInt(SCORE_THIS_TURN, scoreThisTurn);
+//         savedInstanceState.putInt(TOTAL_SCORE, totalScore);
+        //        savedInstanceState.putInt(TURN_ROUND, turnRound);
+        //    savedInstanceState.putInt(TURN, turn);
+//
+        // Always call the superclass so it can save the view hierarchy state
+        //       super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -63,11 +49,57 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        System.out.println("HEEEJ");
+        super.onCreate(savedInstanceState);
+        int displayInfo = getResources().getConfiguration().orientation;
+        if(displayInfo == Configuration.ORIENTATION_LANDSCAPE){
+            Log.d("Orientation", "Landscape mode");
+            setContentView(R.layout.activity_main);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        else {
+            Log.d("Orientation", "Portrait mode");
+            setContentView(R.layout.activity_main);
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+        if (savedInstanceState != null) {
+            scoreThisTurn = savedInstanceState.getInt(SCORE_THIS_TURN);
+            totalScore = savedInstanceState.getInt(TOTAL_SCORE);
+            turnRound = savedInstanceState.getInt(TURN_ROUND);
+            turn = savedInstanceState.getInt(TURN);
+        } else {
+            Die die1 = (Die) findViewById(R.id.first_dice);
+            Die die2 = (Die) findViewById(R.id.second_dice);
+            Die die3 = (Die) findViewById(R.id.third_dice);
+            Die die4 = (Die) findViewById(R.id.fourth_dice);
+            Die die5 = (Die) findViewById(R.id.fifth_dice);
+            Die die6 = (Die) findViewById(R.id.sixth_dice);
+
+            dice.add(die1);
+            dice.add(die2);
+            dice.add(die3);
+            dice.add(die4);
+            dice.add(die5);
+            dice.add(die6);
+
+            turnRound = 1;
+            turn = 1;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     public void saveDice(View view) {
@@ -89,31 +121,28 @@ public class MainActivity extends ActionBarActivity {
     public ArrayList<Die> getScoringDice(ArrayList<Die> dice) {
         ArrayList<Integer> dieValues = ScoreCalculator.getDiceValues(dice);
         ArrayList<Integer> threeOfAKind = ScoreCalculator.calculateThreeOfAKind(dieValues);
-        for(Die die : this.dice) {
-            die.setNoPoints();
-        }
+        ArrayList<Die> scoringDice = new ArrayList<Die>();
         for(Integer val: threeOfAKind) {
             int count = 0;
             for(Die die: dice) {
                 if(val == die.getValue() && count < 3) {
                     count++;
                     die.setGivePoints();
+                    scoringDice.add(die);
+                    die.setLocked();
                 }
             }
         }
         if(ScoreCalculator.calculateStraight(dieValues)) {
             for(Die die: dice) {
                 die.setGivePoints();
+                scoringDice.add(die);
+                die.setLocked();
             }
         }
         for(Die die: dice) {
             if((die.getValue()==1 || die.getValue() == 5)) {
                 die.setGivePoints();
-            }
-        }
-        ArrayList<Die> scoringDice = new ArrayList<Die>();
-        for(Die die: this.dice) {
-            if(die.givePoints) {
                 scoringDice.add(die);
                 die.setLocked();
             }
@@ -125,12 +154,12 @@ public class MainActivity extends ActionBarActivity {
         ArrayList<Die> onHoldOrLockedDice = new ArrayList<Die>();
         ArrayList<Die> onHoldDice = new ArrayList<Die>();
         for(Die die:dice) {
-            if(die.onHold || die.locked) {
-                onHoldOrLockedDice.add(die);
+            if(die.onHold && !die.isLocked()) {
+                onHoldDice.add(die);
             }
         }
-        ArrayList<Die> scoringDice = getScoringDice(onHoldOrLockedDice);
-        Integer score = earlierScoreThisRound + ScoreCalculator.calculateScore(scoringDice);
+        ArrayList<Die> scoringDice = getScoringDice(onHoldDice);
+        Integer score = scoreThisTurn + ScoreCalculator.calculateScore(scoringDice);
         if((turnRound == 1 && score >= 300) || (turnRound > 1 && score > scoreThisTurn)) {
             turnEnded = false;
             scoreThisTurn = score;
@@ -155,7 +184,6 @@ public class MainActivity extends ActionBarActivity {
         scoreThisTurn = 0;
         turnRound = 1;
         turnEnded = false;
-        earlierScoreThisRound = 0;
         for(Die die:dice) {
             die.setUnlocked();
             die.onHold = false;
@@ -182,8 +210,8 @@ public class MainActivity extends ActionBarActivity {
                 die.setUnlocked();
                 die.onHold = false;
                 turnEnded = false;
+                die.givePoints = false;
             }
-            earlierScoreThisRound = earlierScoreThisRound + ScoreCalculator.calculateScore(this.dice);
         }
     }
 

@@ -1,7 +1,6 @@
 package uppgift1.greed;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by Marcus on 15-01-23.
@@ -83,15 +82,20 @@ public class ScoreCalculator {
         ArrayList<Integer> threeOfAKindValues = new ArrayList<Integer>();
         if(ones >= 3) {
             threeOfAKindValues.add(1);
-        } else if(twos >= 3) {
+        }
+        if(twos >= 3) {
             threeOfAKindValues.add(2);
-        } else if(threes >= 3) {
+        }
+        if(threes >= 3) {
             threeOfAKindValues.add(3);
-        } else if(fours >= 3) {
+        }
+        if(fours >= 3) {
             threeOfAKindValues.add(4);
-        } else if(fives >= 3) {
+        }
+        if(fives >= 3) {
             threeOfAKindValues.add(5);
-        } else if(sixes >= 3) {
+        }
+        if(sixes >= 3) {
             threeOfAKindValues.add(6);
         }
         if(ones == 6) {

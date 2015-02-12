@@ -1,6 +1,8 @@
 package uppgift1.greed;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
 
@@ -9,7 +11,7 @@ import java.util.Random;
 /**
  * Created by Marcus on 15-01-22.
  */
-public class Die extends ImageButton {
+public class Die extends ImageButton implements Parcelable{
     int value;
     boolean locked = false;
     boolean onHold = false;
@@ -116,5 +118,15 @@ public class Die extends ImageButton {
     }
     public int getValue(){
         return value;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+
     }
 }
