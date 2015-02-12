@@ -34,6 +34,19 @@ public class Die extends ImageButton implements Parcelable{
         setRed(value);
     }
 
+    public void setOldValues(int value, boolean locked, boolean onHold, boolean givePoints) {
+        this.value = value;
+        this.locked = locked;
+        this.onHold = onHold;
+        this.givePoints = givePoints;
+        if(locked) {
+            setRed(this.value);
+        } else if(onHold) {
+            setGrey(this.value);
+        } else {
+            setWhite(this.value);
+        }
+    }
     public void setUnlocked() {
         this.locked = false;
         setWhite(value);
@@ -127,6 +140,30 @@ public class Die extends ImageButton implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-
+        parcel.writeInt(value);
+        parcel.writeValue(locked);
+        parcel.writeValue(onHold);
+        parcel.writeValue(givePoints);
     }
+
+    /** recreate object from parcel */
+    private Die(Parcel in) {
+        super(null);
+
+        value = in.readInt();
+        locked = (Boolean) in.readValue( null );
+        onHold = (Boolean) in.readValue( null );
+        givePoints = (Boolean) in.readValue( null );
+    }
+
+    public static final Parcelable.Creator<Die> CREATOR
+            = new Parcelable.Creator<Die>() {
+        public Die createFromParcel(Parcel in) {
+            return new Die(in);
+        }
+
+        public Die[] newArray(int size) {
+            return new Die[size];
+        }
+    };
 }

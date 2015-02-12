@@ -2,10 +2,7 @@ package uppgift1.greed;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,10 +13,10 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends Activity {
-    static final String SCORE_THIS_TURN = "0";
-    static final String TOTAL_SCORE = "0";
-    static final String TURN_ROUND = "0";
-    static final String TURN = "0";
+    static final String SCORE_THIS_TURN = "scoreThisTurn";
+    static final String TOTAL_SCORE = "totalScore";
+    static final String TURN_ROUND = "turnRound";
+    static final String TURN = "turn";
 
     private int scoreThisTurn;
     private int totalScore;
@@ -31,14 +28,23 @@ public class MainActivity extends Activity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
-//         savedInstanceState.putInt(SCORE_THIS_TURN, scoreThisTurn);
-//         savedInstanceState.putInt(TOTAL_SCORE, totalScore);
-        //        savedInstanceState.putInt(TURN_ROUND, turnRound);
-        //    savedInstanceState.putInt(TURN, turn);
-//
-        // Always call the superclass so it can save the view hierarchy state
-        //       super.onSaveInstanceState(savedInstanceState);
+
+         savedInstanceState.putInt(SCORE_THIS_TURN, scoreThisTurn);
+         savedInstanceState.putInt(TOTAL_SCORE, totalScore);
+         savedInstanceState.putInt(TURN_ROUND, turnRound);
+         savedInstanceState.putInt(TURN, turn);
+
+
+         super.onSaveInstanceState(savedInstanceState);
+        Die[] diceArray = new Die[6];
+        for(int i = 0; i <6; i++) {
+            diceArray[i] = dice.get(i);
+        }
+        if(savedInstanceState != null) {
+                savedInstanceState.putParcelableArray("dices", diceArray);
+        }
+
+
     }
 
     @Override
@@ -46,7 +52,7 @@ public class MainActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        //int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
 
@@ -57,42 +63,60 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        System.out.println("HEEEJ");
+        System.out.println(" " + dice.size());
         super.onCreate(savedInstanceState);
-        int displayInfo = getResources().getConfiguration().orientation;
-        if(displayInfo == Configuration.ORIENTATION_LANDSCAPE){
-            Log.d("Orientation", "Landscape mode");
-            setContentView(R.layout.activity_main);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        }
-        else {
-            Log.d("Orientation", "Portrait mode");
-            setContentView(R.layout.activity_main);
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
+//        int displayInfo = getResources().getConfiguration().orientation;
+//        if(displayInfo == Configuration.ORIENTATION_LANDSCAPE){
+//            Log.d("Orientation", "Landscape mode");
+//            setContentView(R.layout.activity_main);
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+//        }
+//        else {
+//            Log.d("Orientation", "Portrait mode");
+//            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+//        }
+        setContentView(R.layout.activity_main);
+        Die die1 = (Die) findViewById(R.id.first_dice);
+        Die die2 = (Die) findViewById(R.id.second_dice);
+        Die die3 = (Die) findViewById(R.id.third_dice);
+        Die die4 = (Die) findViewById(R.id.fourth_dice);
+        Die die5 = (Die) findViewById(R.id.fifth_dice);
+        Die die6 = (Die) findViewById(R.id.sixth_dice);
+        dice.add(die1);
+        dice.add(die2);
+        dice.add(die3);
+        dice.add(die4);
+        dice.add(die5);
+        dice.add(die6);
         if (savedInstanceState != null) {
             scoreThisTurn = savedInstanceState.getInt(SCORE_THIS_TURN);
             totalScore = savedInstanceState.getInt(TOTAL_SCORE);
             turnRound = savedInstanceState.getInt(TURN_ROUND);
             turn = savedInstanceState.getInt(TURN);
+            Die[] tempdice = (Die[]) savedInstanceState.getParcelableArray("dices");
+            for(int i = 0;i< 6;i++) {
+                dice.get(i).setOldValues(tempdice[i].getValue(), tempdice[i].locked, tempdice[i].onHold ,tempdice[i].givePoints);
+            }
+            updateText();
         } else {
-            Die die1 = (Die) findViewById(R.id.first_dice);
-            Die die2 = (Die) findViewById(R.id.second_dice);
-            Die die3 = (Die) findViewById(R.id.third_dice);
-            Die die4 = (Die) findViewById(R.id.fourth_dice);
-            Die die5 = (Die) findViewById(R.id.fifth_dice);
-            Die die6 = (Die) findViewById(R.id.sixth_dice);
-
-            dice.add(die1);
-            dice.add(die2);
-            dice.add(die3);
-            dice.add(die4);
-            dice.add(die5);
-            dice.add(die6);
-
             turnRound = 1;
             turn = 1;
         }
+
+    }
+
+    private void updateText() {
+        String turnText = "Score: " + totalScore;
+        TextView totalScore = (TextView) findViewById(R.id.total_score);
+        totalScore.setText((CharSequence) turnText);
+
+        turnText = "Turn score: " + scoreThisTurn;
+        TextView turnScore = (TextView) findViewById(R.id.turn_score);
+        turnScore.setText((CharSequence) turnText);
+
+        turnText = "Turn: " + turn;
+        TextView turn = (TextView) findViewById(R.id.turn_number);
+        turn.setText((CharSequence) turnText);
     }
 
     @Override
@@ -118,9 +142,19 @@ public class MainActivity extends Activity {
         turnEnded = true;
     }
 
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true);
+    }
+
     public ArrayList<Die> getScoringDice(ArrayList<Die> dice) {
         ArrayList<Integer> dieValues = ScoreCalculator.getDiceValues(dice);
+        System.out.println("......." + dieValues);
         ArrayList<Integer> threeOfAKind = ScoreCalculator.calculateThreeOfAKind(dieValues);
+        System.out.println("......." + threeOfAKind);
+        for(Die die:dice) {
+            die.setNoPoints();
+        }
         ArrayList<Die> scoringDice = new ArrayList<Die>();
         for(Integer val: threeOfAKind) {
             int count = 0;
@@ -141,7 +175,7 @@ public class MainActivity extends Activity {
             }
         }
         for(Die die: dice) {
-            if((die.getValue()==1 || die.getValue() == 5)) {
+            if((die.getValue()==1 || die.getValue() == 5) && !die.givePoints) {
                 die.setGivePoints();
                 scoringDice.add(die);
                 die.setLocked();
@@ -159,6 +193,7 @@ public class MainActivity extends Activity {
             }
         }
         ArrayList<Die> scoringDice = getScoringDice(onHoldDice);
+        System.out.println("scoring" + scoringDice.size());
         Integer score = scoreThisTurn + ScoreCalculator.calculateScore(scoringDice);
         if((turnRound == 1 && score >= 300) || (turnRound > 1 && score > scoreThisTurn)) {
             turnEnded = false;

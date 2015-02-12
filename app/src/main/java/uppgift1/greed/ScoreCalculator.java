@@ -11,10 +11,13 @@ public class ScoreCalculator {
     }
     public static int calculateScore(ArrayList<Die> dice) {
         int score = 0;
+
         ArrayList<Integer> values = getDiceValues(dice);
         ArrayList<Integer> threeOfAKindValues = calculateThreeOfAKind(values);
+        System.out.println("1 " + values + " " +threeOfAKindValues);
         for(Integer val :threeOfAKindValues) {
             if(val==1) {
+                System.out.println("-------------1111" + score + " " +threeOfAKindValues);
                 score = score + 1000;
                 values.remove(val);
                 values.remove(val);
@@ -26,6 +29,7 @@ public class ScoreCalculator {
                 values.remove(val);
             }
         }
+
         if(calculateStraight(values)) {
             score = 1000;
             return score;
@@ -43,11 +47,11 @@ public class ScoreCalculator {
 
 
     public static ArrayList<Integer> getDiceValues(ArrayList<Die> dice) {
-        ArrayList<Integer> values = new ArrayList<Integer>();
+        ArrayList<Integer> valuesn = new ArrayList<Integer>();
         for(Die die:dice) {
-            values.add(die.getValue());
+            valuesn.add(die.getValue());
         }
-        return values;
+        return valuesn;
     }
 
     public static boolean calculateStraight(ArrayList<Integer> dice) {
